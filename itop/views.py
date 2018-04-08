@@ -1,16 +1,24 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
-from itop import login
-def index(request):
-    org_id=2
-   
+from django.contrib.auth import authenticate, login
 
+from itop import ItopApi
+def index(request):
+    status=""
     if request.method == 'POST':
-        username=request.POST.get('username')
-        password=request.POST.get('password')
-        loger= login.Dashboard()
-        saeed=loger.Login(username,password)
-        print(saeed)
+        username=(request.POST.get('username'))
+        password=(request.POST.get('password'))
+        loger= ItopApi.Dashboard()
+        status=loger.Login(username,password)
+        if status== True:
+            request.session['username'] = username
+            request.session['password'] = password
+        else:
+            status="Failed Login"
+
+
+    #request.session['name'] = 'Ludwik'
+    #print (request.session['name'])
 
         #itop = itopy.Api()
         #org_id=itop.connect("https://demo.combodo.com/simple/webservices/rest.php", "1.3", username, password)
@@ -31,7 +39,4 @@ def index(request):
     #print(org_id)
     #return HttpResponse(html)
 
-    if org_id==1: org_id="Login Failed"
-    elif org_id==0: org_id="Login Success"
-    else: org_id=""
-    return render(request,'index.html',{"org_id":org_id})
+    return render(request,'index.html',{"status":status})
