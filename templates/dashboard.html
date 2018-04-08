@@ -1,0 +1,9 @@
+<a href="/Logout/" style="position:absolute;right: 20px;padding: 10px;background: #FF5722;color: #FFF;text-decoration: none;">Logout</a>
+<h1>Dashboard</h3>
+<fieldset style="border:1px solid #ccc"><legend>Show User Detail:</legend>
+{% for key,value in status.objects.items %}
+    {% for k1,v1 in value.fields.items %}
+    {{k1}} : {{v1}}<br>
+    {% endfor %}
+{% endfor %}    
+</fieldset>

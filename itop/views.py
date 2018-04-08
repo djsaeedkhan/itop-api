@@ -1,42 +1,42 @@
-from django.http import HttpResponse
+from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import authenticate, login
-
 from itop import ItopApi
-def index(request):
+
+def Index(request):
+    if Session(request) == False: return HttpResponseRedirect('/Login/') 
+
+    return render(request,'index.html',{})
+
+def Dashboard(request):
+    if Session(request) == False: return HttpResponseRedirect('/Login/') 
+        
+    loger= ItopApi.Dashboard()
+    status=loger.UserLocal(request)
+    return render(request,'dashboard.html',{"status":status})
+
+def Login(request):
     status=""
     if request.method == 'POST':
-        username=(request.POST.get('username'))
-        password=(request.POST.get('password'))
+        username=request.POST.get('username')
+        password=request.POST.get('password')
         loger= ItopApi.Dashboard()
         status=loger.Login(username,password)
-        if status== True:
+        if status == True:
             request.session['username'] = username
             request.session['password'] = password
+            return HttpResponseRedirect('/Dashboard/')
         else:
             status="Failed Login"
+    return render(request,'login.html',{"status":status})
 
+def Logout(request):
+    del request.session['username']
+    del request.session['password']
+    return HttpResponseRedirect('/Login/')
 
-    #request.session['name'] = 'Ludwik'
-    #print (request.session['name'])
-
-        #itop = itopy.Api()
-        #org_id=itop.connect("https://demo.combodo.com/simple/webservices/rest.php", "1.3", username, password)
-        #login()
-        #tem=login 
-        #if(tem==true)
-        #print(org_id)
-
-        #org_id2 = itop.get('UserLocal', 'SELECT UserLocal WHERE login="'+username+'"')
-        ##print(org_id2)
-        ##if org_id!=0: org_id=1
-
-
-    #org_id = itop.get('Organization', 'SELECT Organization WHERE id = "192"')
-    #org_id = itop.get('Person', "SELECT Person WHERE email LIKE '%.com'","email")
-    #org_id = itop.get('Person', 'SELECT Person WHERE id="76"')
-    
-    #print(org_id)
-    #return HttpResponse(html)
-
-    return render(request,'index.html',{"status":status})
+def Session(request):
+    if request.session.get('username', 0) == 0:
+        return False
+    else: 
+        return True    
